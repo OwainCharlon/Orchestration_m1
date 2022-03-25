@@ -1,0 +1,306 @@
+# -------------------------------------------- Namespace creation ----------------------------------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: appscore
+
+---
+# -------------------------------------------- Volumes creation -----------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mssql-linux-volume-claim
+  namespace: appscore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-volume-claim
+  namespace: appscore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+# ------------------------------------------------- Web service --------------------------------------------------------
+# Web deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  namespace: appscore
+  labels:
+    app: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-pod
+  template:
+    metadata:
+      labels:
+        app: web-pod
+    spec:
+      containers:
+      - image: owaincharlon/m1cloud:web_m1cloud
+        name: web-container
+        ports:
+        - containerPort: 80
+          name: web-container-port
+        resources:
+            requests:
+              memory: 900Mi
+              cpu: 4m
+            limits:
+              memory: 2000Mi
+              cpu: 6m
+      restartPolicy: Always
+---
+# Web service
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+  namespace: appscore
+spec:
+  selector:
+    app: web-pod
+  ports:
+    - port: 8080
+      targetPort: web-container-port
+  type: ClusterIP
+---
+# ------------------------------------------------- Applicants service --------------------------------------------------------
+# Applicants deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: applicants-deployment
+  namespace: appscore
+  labels:
+    app: applicants-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: applicants-pod
+  template:
+    metadata:
+      labels:
+        app: applicants-pod
+    spec:
+      containers:
+      - image: owaincharlon/m1cloud:app_api_m1cloud
+        name: applicants-container
+        env:
+        - name: ConnectionString
+          value: Server=sql.data
+        - name: User
+          value: sa
+        - name: Password
+          value: Pass@word
+        - name: Database
+          value: dotnetgigs.applicants
+        - name: HostRabbitmq
+          value: rabbitmq
+        ports:
+        - containerPort: 80
+          name: applicants-container-port
+        resources:
+            requests:
+              memory: 500Mi
+              cpu: 3m
+            limits:
+              memory: 1500Mi
+              cpu: 6m
+      restartPolicy: Always
+---
+# Applicants service
+apiVersion: v1
+kind: Service
+metadata:
+  name: applicants-service
+  namespace: appscore
+spec:
+  selector:
+    app: applicants-pod
+  ports:
+    - port: 8081
+      targetPort: applicants-container-port
+  type: ClusterIP
+---
+# ------------------------------------------------- Identity service --------------------------------------------------------
+# Identity deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-deployment
+  namespace: appscore
+  labels:
+    app: identity-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: identity-pod
+  template:
+    metadata:
+      labels:
+        app: identity-pod
+    spec:
+      containers:
+      - image: owaincharlon/m1cloud:id_api_m1cloud
+        name: identity-container
+        env:
+        - name: RedisHost
+          value: user.data:6379
+        - name: HostRabbitmq
+          value: rabbitmq
+        ports:
+        - containerPort: 80
+          name: identity-container-port
+        resources:
+            requests:
+              memory: 500Mi
+              cpu: 3m
+            limits:
+              memory: 1500Mi
+              cpu: 6m
+      restartPolicy: Always
+---
+# Identity service
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+  namespace: appscore
+spec:
+  selector:
+    app: identity-pod
+  ports:
+    - port: 8084
+      targetPort: identity-container-port
+  type: ClusterIP
+---
+# ------------------------------------------------- Jobs service --------------------------------------------------------
+# Jobs deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobs-deployment
+  namespace: appscore
+  labels:
+    app: jobs-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jobs-pod
+  template:
+    metadata:
+      labels:
+        app: jobs-pod
+    spec:
+      containers:
+      - image: owaincharlon/m1cloud:jobs_api_m1cloud
+        name: jobs-container
+        env:
+        - name: ConnectionString
+          value: Server=sql.data
+        - name: User
+          value: sa
+        - name: Password
+          value: Pass@word
+        - name: Database
+          value: dotnetgigs.jobs
+        - name: HostRabbitmq
+          value: rabbitmq
+        ports:
+        - containerPort: 80
+          name: jobs-container-port
+        resources:
+            requests:
+              memory: 500Mi
+              cpu: 3m
+            limits:
+              memory: 1500Mi
+              cpu: 6m
+      restartPolicy: Always
+---
+# Jobs service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobs-service
+  namespace: appscore
+spec:
+  selector:
+    app: jobs-pod
+  ports:
+    - port: 8083
+      targetPort: jobs-container-port
+  type: ClusterIP
+---
+# ------------------------------------------------- Data service --------------------------------------------------------
+# Jobs deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-deployment
+  namespace: appscore
+  labels:
+    app: data-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-pod
+  template: 
+    metadata:
+      labels:
+        app: data-pod
+    spec:
+      containers:
+      - image: mssql-linux
+        name: data-container
+        ports:
+        - containerPort: 1433
+          name: data-container-port
+        volumeMounts:
+        - name: mssql-linux-volume
+          mountPath: /var/opt/mssql
+        resources:
+            requests:
+              memory: 1500Mi
+              cpu: 170m
+            limits:
+              memory: 2500Mi
+              cpu: 250m
+      volumes:
+      - name: mssql-volume
+        persistentVolumeClaim:
+          claimName: mssql-volume-claim
+      restartPolicy: Always
+---
+# Data service
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-service
+  namespace: appscore
+spec:
+  selector:
+    app: data-pod
+  ports:
+    - port: 1433
+      targetPort: data-container-port
+  type: ClusterIP
+---

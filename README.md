@@ -1,2 +1,2 @@
 # Orchestration_m1
-Projet de fin du module Orchestration.
+Déploiement k8s de l'application appscore.

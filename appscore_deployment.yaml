@@ -39,6 +39,7 @@ metadata:
   namespace: appscore
   labels:
     app: web-app
+    area: web-area
 spec:
   replicas: 1
   selector:
@@ -49,6 +50,17 @@ spec:
       labels:
         app: web-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: owaincharlon/m1cloud:web_m1cloud
         name: web-container
@@ -99,6 +111,17 @@ spec:
       labels:
         app: applicants-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: owaincharlon/m1cloud:app_api_m1cloud
         name: applicants-container
@@ -154,6 +177,17 @@ spec:
       labels:
         app: identity-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: owaincharlon/m1cloud:id_api_m1cloud
         name: identity-container
@@ -209,6 +243,17 @@ spec:
       labels:
         app: jobs-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: owaincharlon/m1cloud:jobs_api_m1cloud
         name: jobs-container
@@ -254,6 +299,7 @@ metadata:
   namespace: appscore
   labels:
     app: data-app
+    area: data-area
 spec:
   replicas: 1
   selector:
@@ -264,6 +310,17 @@ spec:
       labels:
         app: data-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: owaincharlon/m1cloud:db_m1cloud
         name: data-container
@@ -355,6 +412,7 @@ metadata:
   namespace: appscore
   labels:
     app: userdata-app
+    area: user-data-area
 spec:
   replicas: 1
   selector:
@@ -365,6 +423,17 @@ spec:
       labels:
         app: userdata-pod
     spec:
+      #---------------------------------------------- Affinity -------------------------------------------------------
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - docker-desktop
+      #----------------------------------------------------------------------------------------------------------------
       containers:
       - image: redis
         name: userdata-container
@@ -408,8 +477,6 @@ metadata:
   namespace: appscore
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/redirect-regex: ^/(.*)
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:

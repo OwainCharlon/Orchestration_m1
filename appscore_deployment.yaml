@@ -9,7 +9,7 @@ metadata:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mssql-linux-volume-claim
+  name: mssql-volume-claim
   namespace: appscore
 spec:
   accessModes:
@@ -40,7 +40,7 @@ metadata:
   labels:
     app: web-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: web-pod
@@ -53,15 +53,16 @@ spec:
       - image: owaincharlon/m1cloud:web_m1cloud
         name: web-container
         ports:
-        - containerPort: 80
-          name: web-container-port
+        - protocol: TCP 
+          containerPort: 80
+          name: web-port
         resources:
             requests:
               memory: 900Mi
               cpu: 4m
             limits:
               memory: 2000Mi
-              cpu: 6m
+              cpu: 1
       restartPolicy: Always
 ---
 # Web service
@@ -74,8 +75,9 @@ spec:
   selector:
     app: web-pod
   ports:
-    - port: 8080
-      targetPort: web-container-port
+    - protocol: TCP 
+      port: 8080
+      targetPort: 80
   type: ClusterIP
 ---
 # ------------------------------------------------- Applicants service --------------------------------------------------------
@@ -88,7 +90,7 @@ metadata:
   labels:
     app: applicants-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: applicants-pod
@@ -102,25 +104,20 @@ spec:
         name: applicants-container
         env:
         - name: ConnectionString
-          value: Server=sql.data
-        - name: User
-          value: sa
-        - name: Password
-          value: Pass@word
-        - name: Database
-          value: dotnetgigs.applicants
+          value: "Server=data-service;User=sa;Password=Pass@word;Database=dotnetgigs.applicants;"
         - name: HostRabbitmq
-          value: rabbitmq
+          value: "rabbitmq-service"
         ports:
-        - containerPort: 80
-          name: applicants-container-port
+        - protocol: TCP  
+          containerPort: 80
+          name: applicants-port
         resources:
             requests:
               memory: 500Mi
-              cpu: 3m
+              cpu: 0.5
             limits:
               memory: 1500Mi
-              cpu: 6m
+              cpu: 1
       restartPolicy: Always
 ---
 # Applicants service
@@ -133,8 +130,9 @@ spec:
   selector:
     app: applicants-pod
   ports:
-    - port: 8081
-      targetPort: applicants-container-port
+    - protocol: TCP
+      port: 80
+      targetPort: 80
   type: ClusterIP
 ---
 # ------------------------------------------------- Identity service --------------------------------------------------------
@@ -147,7 +145,7 @@ metadata:
   labels:
     app: identity-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: identity-pod
@@ -161,19 +159,20 @@ spec:
         name: identity-container
         env:
         - name: RedisHost
-          value: user.data:6379
+          value: "userdata-service"
         - name: HostRabbitmq
-          value: rabbitmq
+          value: "rabbitmq-service"
         ports:
-        - containerPort: 80
-          name: identity-container-port
+        - protocol: TCP  
+          containerPort: 80
+          name: identity-port
         resources:
             requests:
               memory: 500Mi
-              cpu: 3m
+              cpu: 0.5
             limits:
               memory: 1500Mi
-              cpu: 6m
+              cpu: 1
       restartPolicy: Always
 ---
 # Identity service
@@ -186,8 +185,9 @@ spec:
   selector:
     app: identity-pod
   ports:
-    - port: 8084
-      targetPort: identity-container-port
+    - protocol: TCP 
+      port: 80
+      targetPort: 80
   type: ClusterIP
 ---
 # ------------------------------------------------- Jobs service --------------------------------------------------------
@@ -200,7 +200,7 @@ metadata:
   labels:
     app: jobs-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: jobs-pod
@@ -214,25 +214,20 @@ spec:
         name: jobs-container
         env:
         - name: ConnectionString
-          value: Server=sql.data
-        - name: User
-          value: sa
-        - name: Password
-          value: Pass@word
-        - name: Database
-          value: dotnetgigs.jobs
+          value: "Server=data-service;User=sa;Password=Pass@word;Database=dotnetgigs.jobs;"
         - name: HostRabbitmq
-          value: rabbitmq
+          value: "rabbitmq-service"
         ports:
-        - containerPort: 80
-          name: jobs-container-port
+        - protocol: TCP 
+          containerPort: 80
+          name: jobs-port
         resources:
             requests:
               memory: 500Mi
-              cpu: 3m
+              cpu: 0.5
             limits:
               memory: 1500Mi
-              cpu: 6m
+              cpu: 1
       restartPolicy: Always
 ---
 # Jobs service
@@ -245,12 +240,13 @@ spec:
   selector:
     app: jobs-pod
   ports:
-    - port: 8083
-      targetPort: jobs-container-port
+    - protocol: TCP 
+      port: 80
+      targetPort: 80
   type: ClusterIP
 ---
 # ------------------------------------------------- Data service --------------------------------------------------------
-# Jobs deployment
+# Data deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -269,21 +265,15 @@ spec:
         app: data-pod
     spec:
       containers:
-      - image: mssql-linux
+      - image: owaincharlon/m1cloud:db_m1cloud
         name: data-container
         ports:
-        - containerPort: 1433
-          name: data-container-port
+        - protocol: TCP 
+          containerPort: 1433
+          name: data-port
         volumeMounts:
-        - name: mssql-linux-volume
+        - name: mssql-volume
           mountPath: /var/opt/mssql
-        resources:
-            requests:
-              memory: 1500Mi
-              cpu: 170m
-            limits:
-              memory: 2500Mi
-              cpu: 250m
       volumes:
       - name: mssql-volume
         persistentVolumeClaim:
@@ -300,7 +290,135 @@ spec:
   selector:
     app: data-pod
   ports:
-    - port: 1433
-      targetPort: data-container-port
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
   type: ClusterIP
 ---
+# ------------------------------------------------- Rabbitmq service --------------------------------------------------------
+# Rabbitmq deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-deployment
+  namespace: appscore
+  labels:
+    app: rabbitmq-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-pod
+  template: 
+    metadata:
+      labels:
+        app: rabbitmq-pod
+    spec:
+      containers:
+      - image: rabbitmq:3-management
+        name: rabbitmq-container
+        ports:
+        - protocol: TCP 
+          containerPort: 15672
+          name: rmq-cli-port
+        - protocol: TCP 
+          containerPort: 5672
+          name: rmq-port
+      restartPolicy: Always
+---
+# Rabbitmq service
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: appscore
+spec:
+  selector:
+    app: rabbitmq-pod
+  ports:
+    - protocol: TCP  
+      name: rmq-cli-serv-p
+      port: 15672
+      targetPort: 15672
+    - protocol: TCP 
+      name: rmq-serv-p
+      port: 5672
+      targetPort: 5672
+  type: ClusterIP
+---
+# ------------------------------------------------- Userdata service --------------------------------------------------------
+# Userdata deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userdata-deployment
+  namespace: appscore
+  labels:
+    app: userdata-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userdata-pod
+  template: 
+    metadata:
+      labels:
+        app: userdata-pod
+    spec:
+      containers:
+      - image: redis
+        name: userdata-container
+        ports:
+        - protocol: TCP 
+          containerPort: 6379
+          name: userdata-port
+        volumeMounts:
+        - name: redis-volume
+          mountPath: /data
+        resources:
+            requests:
+              memory: 500Mi
+              cpu: 4m
+      volumes:
+      - name: redis-volume
+        persistentVolumeClaim:
+          claimName: redis-volume-claim
+      restartPolicy: Always
+---
+# Userdata service
+apiVersion: v1
+kind: Service
+metadata:
+  name: userdata-service
+  namespace: appscore
+spec:
+  selector:
+    app: userdata-pod
+  ports:
+    - protocol: TCP 
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP
+---
+# ------------------------------------------------- Ingress Controller creation --------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: appscore-ingress
+  namespace: appscore
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/redirect-regex: ^/(.*)
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 8080

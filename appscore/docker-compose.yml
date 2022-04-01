@@ -63,10 +63,7 @@ services:
       - rabbitmq       
     restart: always
   sql.data:
-    image: mssql-linux
-    build:
-      context: ./Database
-      dockerfile: Dockerfile
+    image: owaincharlon/m1cloud:db_m1cloud
     ports:
       - 1433:1433
     container_name: mssql-linux

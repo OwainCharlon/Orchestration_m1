@@ -1,4 +1,3 @@
-
 # Projet Conteneurisation et Orchestration
 
 Vous allez faire un projet conteneur et orchestration utilisant les technolgies de votre choix pour la partie conteneur et Kubernetes pour la partie orchestration.
@@ -43,21 +42,16 @@ Les pods devront également redémarrer automatiquement si ils tombent.
 Il vous faudra définir des "règles d'affinité" entre vos éléments afin d'en améliorer les performances dans les échanges.
 Ressources par app:
 - web => CPU 4m, MEM 900Mi
-- applicants.api => CPU 3m, MEM 500Mi
-- identity.api => CPU 3m, MEM 500Mi
-- jobs.api => CPU 3m, MEM 500Mi
-- sql.data => CPU 170m, MEM 1500Mi
-- rabbitmq => CPU 4m, MEM 500Mi
+- applicants.api => CPU 0.5, MEM 500Mi
+- identity.api => CPU 0.5, MEM 500Mi
+- jobs.api => CPU 0.5, MEM 500Mi
 - user.data => CPU 4m, MEM 500Mi
 
 Ressources limittes par app:
-- web => CPU 6m, MEM 2000Mi
-- applicants.api => CPU 6m, MEM 1500Mi
-- identity.api => CPU 6m, MEM 1500Mi
-- jobs.api => CPU 6m, MEM 1500Mi
-- sql.data => CPU 250m, MEM 2500Mi
-- rabbitmq => CPU 8m, MEM 1500Mi
-- user.data => CPU 8m, MEM 1500Mi
+- web => CPU 1, MEM 2000Mi
+- applicants.api => CPU 1, MEM 1500Mi
+- identity.api => CPU 1, MEM 1500Mi
+- jobs.api => CPU 1, MEM 1500Mi
 
 Affinité:
 - Web => jobs.api et applicants.api
@@ -116,20 +110,26 @@ Pour tout autre type de fichier, veuillez demander à l'enseignant si son inclus
 La soutenance dure 20 minutes durant lesquelles les membres présentent leur travail. Un échange de questions peut se faire entre le professeur et les membres du groupe.
 
 Les groupes sont les suivants:
-
+- NGINDU Gérard, RAVELOSON Adrien, FAKOUE MFOUAPON Arouna
+- MEZGOURIA Taha, BAGAYOKO Abdoulaye, SAHA Winsley
+- BRUYEZ Bastien, LACOMBE Samy
+- CHARLON Owain, KREPA Tom
+- AYEM Sonia, BOUDHRIOUA GABTNI Zaineb
+- DUMOULIN Nicolas, MROIVILI Idris, DIOP Diadji, MAATOUG Mohamed
+- GIBAUX Costin
+- CHATILLON Aurélien, SHAKIBAEI Mohammad-reza, KOZIOR Arthur
+- TAPIA BRAVO Rodrigo, FOFANA Djenabou, NOAH NKOA Emmanuel
 
 Les horaires de passage des groupes sont les suivants:
  
-- 9h30: 
-- 10h: 
-- 10h30: 
-- 11h30: 
-- 12h: 
-- 12h30: 
-- 14h30: 
-- 15h: 
-- 15h30: 
-- 16h:
-- 16h30:
+- 9h30: MEZGOURIA Taha, BAGAYOKO Abdoulaye, SAHA Winsley
+- 10h: GIBAUX Costin
+- 10h30: CHATILLON Aurélien, SHAKIBAEI Mohammad-reza, KOZIOR Arthur
+- 11h30: AYEM Sonia, BOUDHRIOUA GABTNI Zaineb
+- 12h: NGINDU Gérard, RAVELOSON Adrien, FAKOUE MFOUAPON Arouna
+- 12h30: BRUYEZ Bastien, LACOMBE Samy
+- 14h30: CHARLON Owain, KREPA Tom
+- 15h: TAPIA BRAVO Rodrigo, FOFANA Djenabou, NOAH NKOA Emmanuel
+- 15h30: DUMOULIN Nicolas, MROIVILI Idris, DIOP Diadji, MAATOUG Mohamed
 
 Pour ceux dont le groupe n'est pas dans la liste, contactez-moi très rapidement à vincent.leclerc@ynov.com

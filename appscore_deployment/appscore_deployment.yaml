@@ -48,10 +48,9 @@ spec:
       app: web-pod
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/port: '80'
-        
+      # annotations:
+      #   prometheus.io/scrape: 'true'
+      #   prometheus.io/port: '80'
       labels:
         app: web-pod
     spec:
@@ -74,20 +73,22 @@ spec:
           httpGet:
             path: /Home/Contact
             port: 80
-            httpHeaders:
-            - name: Custom-Header
-              value: Awesome
-          initialDelaySeconds: 3
-          periodSeconds: 3
+            # httpHeaders:
+            # - name: Custom-Header
+            #   value: Awesome
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          failureThreshold: 10
         readinessProbe:
           httpGet:
             path: /Home/Contact
             port: 80
-            httpHeaders:
-            - name: Custom-Header
-              value: Awesome
-          initialDelaySeconds: 3
-          periodSeconds: 3
+            # httpHeaders:
+            # - name: Custom-Header
+            #   value: Awesome
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          failureThreshold: 10
         #--------------------------------------------------------------------------------------------------
         name: web-container
         ports:
@@ -576,4 +577,4 @@ spec:
   tls:
     - hosts:
         - localhost
-      #secretName: appscore-root-secret
+      secretName: "appscore-root-secret"

@@ -24,6 +24,9 @@
 
 `helm install prometheus prometheus-community/kube-prometheus-stack -n appscore`
 
+## Access to Grafana
+
+`kubectl port-forward -n appscore deployment/prometheus-grafana 3000`
 # ELK deployment
 
 `Helm repo add elastic https://Helm.elastic.co`
@@ -31,3 +34,18 @@
 `Helm install elasticsearch --namespace=appscore elastic/elasticsearch --set replicas=1 --set minimumMasterNodes=1 --set clusterHealthCheckParams="wait_for_status=yellow&timeout=1s"`
 
 `Helm install kibana --namespace=appscore  elastic/kibana`
+## Initialising some metrics datas with metricbeat
+
+`Helm install metricbeat --namespace=appscore elastic/metricbeat`
+
+## Access to Kibana
+
+`kubectl port-forward -n appscore deployment/kibana-kibana 5601`
+
+## Deploying logstach release
+
+`helm repo add bitnami https://charts.bitnami.com/bitnami`
+
+`helm repo update`
+
+`helm install logstach --namespace=appscore bitnami/logstash`

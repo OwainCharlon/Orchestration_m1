@@ -62,7 +62,7 @@ Affinité:
 
 Votre cluster devra être sous surveillance!  Vous devrez réaliser "un bilan de santé" de votre cluster en métant en place les sondes de préparation et les sondes de vivacité.
 De même vous devrez mettre en place les mesures par métrique, les métriques de l'état du cluster, les métriques de ressources des noeuds et des pods ainsi que [les métriques de travail du plan de contrôle](https://kubernetes.io/docs/concepts/cluster-administration/system-metrics) (Metrics server et kube-state-metrics).
-Les données eront affichées dans un Prometheus, installé au préalable sur le cluster.
+Les données seront affichées dans un Prometheus, installé au préalable sur le cluster.
 
 ## Sécurité
 
